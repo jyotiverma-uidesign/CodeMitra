@@ -1,0 +1,18 @@
+[
+  {
+    "name": "aditi malviya",
+    "email": "aditi123@gmail.com",
+    "password": "aditi123",
+    "avatar": "http://localhost:5000/uploads/1768139423769.jpeg",
+    "resetToken": "997aa94587c0b197283988e26648d83f5c4dc87ffe454bcdd7e080046b19accc",
+    "resetTokenExpiry": 1768150904927
+  },
+  {
+    "name": "jyoti verma",
+    "email": "jyotiverma85190@gmail.com",
+    "password": "$2b$10$pcRVDGa903PC44GraWF6WuDwtVFrPstSxGKL2tJaZ4BfEKfHZJlsa",
+    "avatar": "",
+    "resetToken": "a132023f78be12896fa486d19818ab190378b760f420ea4909c758cfd7aaeac3",
+    "resetTokenExpiry": 1768151469153
+  }
+]

@@ -1,0 +1,90 @@
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/500.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Code Mitra Design System - Electric Purple + Neon Cyan */
+
+@layer base {
+  :root {
+    --background: 222 47% 6%;
+    --foreground: 0 0% 100%; /* PURE WHITE */
+
+    --card: 222 47% 8%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 222 47% 8%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 270 91% 65%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 187 94% 52%;
+    --secondary-foreground: 222 47% 6%;
+
+    --muted: 222 47% 14%;
+    --muted-foreground: 0 0% 80%;
+
+    --accent: 270 91% 65%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222 47% 18%;
+    --input: 222 47% 14%;
+    --ring: 270 91% 65%;
+
+    --radius: 0.75rem;
+
+    /* Custom tokens */
+    --neon-purple: 270 91% 65%;
+    --neon-cyan: 187 94% 52%;
+
+    --glass-bg: 222 47% 10%;
+    --glass-border: 222 47% 20%;
+
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(270 91% 65%),
+      hsl(187 94% 52%)
+    );
+
+    --gradient-text: linear-gradient(
+      90deg,
+      hsl(270 91% 70%),
+      hsl(187 94% 55%)
+    );
+  }
+
+  body {
+    @apply bg-background text-white antialiased;
+    font-family: "Inter", system-ui, sans-serif;
+  }
+
+  code,
+  pre,
+  .font-mono {
+    font-family: "JetBrains Mono", monospace;
+  }
+}
+
+/* GLOBAL RESET */
+* {
+  box-sizing: border-box;
+}
+
+/* ✅ PURPLE → CYAN GRADIENT TEXT (NO PINK) */
+.gradient-text {
+  background: linear-gradient(90deg, #7c3aed, #22d3ee);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
