@@ -18,6 +18,7 @@ import AdminPyment from "./pages/admin/AdminPyment";
 import Deshboard from "./pages/Deshboard";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import ScrollToTop from "./components/ScrollTop";
 
 import { AuthProvider } from "./context/AuthContext";
 import ThemeToggle from "./pages/ThemeToggle";
@@ -39,7 +40,7 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-
+         <ScrollToTop smooth={true} />
         <AuthProvider>
           {/* 🔹 Routes */}
           <Routes>
