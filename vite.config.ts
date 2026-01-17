@@ -3,12 +3,19 @@ import react from "@vitejs/plugin-react-swc";
 
 export default defineConfig({
   plugins: [react()],
-  server: {
-    port: 5173,
-  },
-  base: "/jyotiverma-uidesign/", // GitHub Pages repo name
+  base: "./", // ✅ Must match your repo name exactly
   build: {
-    outDir: "dist",       // default, ensures build goes to dist
-    assetsDir: "assets",  // ✅ forces JS/CSS/fonts into 'assets' folder
+    outDir: "dist",      // build output folder
+    assetsDir: "assets", // JS/CSS/fonts
+    chunkSizeWarningLimit: 1000, // increase warning limit to 1MB
+    rollupOptions: {
+      output: {
+        // Split big libraries into separate chunks
+        manualChunks: {
+          react: ['react', 'react-dom', 'react-router-dom'],
+          query: ['@tanstack/react-query'],
+        },
+      },
+    },
   },
 });
