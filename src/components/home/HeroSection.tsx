@@ -5,75 +5,80 @@ import { ArrowRight, Play, Sparkles, Code, Terminal, Zap } from "lucide-react";
 
 export const HeroSection = () => {
   return (
-    <section className="relative min-h-screen  text-white flex items-center justify-center overflow-hidden pt-20">
+    <section
+      aria-label="Code Mitra Hero Section"
+      className="relative min-h-screen text-white flex items-center justify-center overflow-hidden pt-20"
+    >
       {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-hero" />
-      <div className="absolute inset-0 bg-grid-pattern opacity-30" />
-      
+      <div className="absolute inset-0 bg-gradient-hero" aria-hidden="true" />
+      <div className="absolute inset-0 bg-grid-pattern opacity-30" aria-hidden="true" />
+
       {/* Floating orbs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl floating" />
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-neon-cyan/15 rounded-full blur-3xl floating" style={{ animationDelay: "-3s" }} />
-      <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-neon-pink/10 rounded-full blur-3xl floating" style={{ animationDelay: "-1.5s" }} />
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl floating" aria-hidden="true" />
+      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-neon-cyan/15 rounded-full blur-3xl floating" style={{ animationDelay: "-3s" }} aria-hidden="true" />
+      <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-neon-pink/10 rounded-full blur-3xl floating" style={{ animationDelay: "-1.5s" }} aria-hidden="true" />
 
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
-        <div className="max-w-5xl mx-auto text-center">
-          {/* Badge */}
+        <header className="max-w-5xl mx-auto text-center">
+          {/* Trust Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel mb-8"
           >
-            <Sparkles className="w-4 h-4 text-primary animate-ping" />
+            <Sparkles className="w-4 h-4 text-primary animate-ping" aria-hidden="true" />
             <span className="text-sm font-medium text-muted-foreground">
               Trusted by 50,000+ developers worldwide
             </span>
           </motion.div>
 
-          {/* Main Heading */}
+          {/* MAIN SEO HEADING */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl  font-bold leading-tight mb-6"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6"
           >
-            Master Coding with{" "}
+            Learn Coding & Frontend Development with{" "}
             <span className="gradient-text">Code Mitra</span>
           </motion.h1>
 
-          {/* Subheading */}
+          {/* SEO OPTIMIZED DESCRIPTION */}
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed"
           >
-            Transform your coding journey with industry-ready courses. Learn Python, JavaScript, 
-            Full-Stack Development, and more with hands-on projects and expert guidance.
+            Code Mitra helps you master coding with industry-ready courses.
+            Learn Python, JavaScript, React, and Full-Stack Development through
+            hands-on projects, real-world examples, and expert mentorship.
           </motion.p>
 
-          {/* CTA Buttons */}
+          {/* CTA */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
           >
-            <Link to="/courses">
+            <Link to="/courses" aria-label="Browse coding courses">
               <Button variant="premium" size="xl" className="group">
                 Start Learning Free
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Link to="/about">
+
+            <Link to="/about" aria-label="Watch Code Mitra demo">
               <Button variant="glass" size="xl" className="group">
-                <Play className="w-5 h-5" />
+                <Play className="w-5 h-5" aria-hidden="true" />
                 Watch Demo
               </Button>
             </Link>
           </motion.div>
 
-          {/* Stats */}
+          {/* TRUST STATS */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -82,9 +87,9 @@ export const HeroSection = () => {
           >
             {[
               { value: "50K+", label: "Active Learners" },
-              { value: "100+", label: "Expert Courses" },
-              { value: "95%", label: "Completion Rate" },
-              { value: "4.9", label: "Student Rating" },
+              { value: "100+", label: "Expert Coding Courses" },
+              { value: "95%", label: "Course Completion Rate" },
+              { value: "4.9", label: "Student Reviews Rating" },
             ].map((stat, index) => (
               <motion.div
                 key={stat.label}
@@ -100,45 +105,11 @@ export const HeroSection = () => {
               </motion.div>
             ))}
           </motion.div>
-        </div>
-
-        {/* Floating Code Elements */}
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="hidden lg:block absolute left-8 top-1/2 -translate-y-1/2"
-        >
-          <div className="glass-panel p-4 floating" style={{ animationDelay: "-2s" }}>
-            <Code className="w-8 h-8 text-primary" />
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 0.7 }}
-          className="hidden lg:block absolute right-8 top-1/3"
-        >
-          <div className="glass-panel p-4 floating" style={{ animationDelay: "-1s" }}>
-            <Terminal className="w-8 h-8 text-neon-cyan" />
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="hidden lg:block absolute right-16 bottom-1/4"
-        >
-          <div className="glass-panel p-4 floating" style={{ animationDelay: "-0.5s" }}>
-            <Zap className="w-8 h-8 text-neon-pink" />
-          </div>
-        </motion.div>
+        </header>
       </div>
 
-      {/* Bottom gradient fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-linear-to-t from-background to-transparent" />
+      {/* Bottom fade */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-linear-to-t from-background to-transparent" aria-hidden="true" />
     </section>
   );
 };
