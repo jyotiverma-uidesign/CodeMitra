@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 
 export default defineConfig({
   plugins: [react()],
-  base: "./", // ✅ Must match your repo name exactly
+  base: "/CodeMitra/", // ✅ Must match your repo name exactly
   build: {
     outDir: "dist",      // build output folder
     assetsDir: "assets", // JS/CSS/fonts
