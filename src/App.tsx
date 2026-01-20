@@ -22,6 +22,7 @@ import ResetPassword from "./pages/ResetPassword";
 import { AuthProvider } from "./context/AuthContext";
 import ThemeToggle from "./pages/ThemeToggle";
 import { useEffect } from "react";
+import ScrollToTop from "./components/ScrollTop";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ const App = () => {
         <Sonner />
 
         <AuthProvider>
+          <ScrollToTop smooth={true}/>
           {/* 🔹 Routes */}
           <Routes>
             <Route path="/" element={<Index />} />
