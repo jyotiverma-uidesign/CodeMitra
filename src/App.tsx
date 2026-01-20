@@ -19,6 +19,7 @@ import Deshboard from "./pages/Deshboard";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 
+
 import { AuthProvider } from "./context/AuthContext";
 import ThemeToggle from "./pages/ThemeToggle";
 import { useEffect } from "react";
@@ -40,7 +41,7 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-
+         <ScrollToTop smooth={true} />
         <AuthProvider>
           <ScrollToTop smooth={true}/>
           {/* 🔹 Routes */}

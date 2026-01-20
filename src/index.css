@@ -88,3 +88,6 @@
   -webkit-text-fill-color: transparent;
   color: transparent;
 }
+html {
+  scroll-behavior: smooth;
+}
