@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";  // ✅ Added useEffect
 import { motion } from "framer-motion";
 import { Navbar } from "../components/layout/Navbar";
 import { Footer } from "../components/layout/Footer";
 import { Button } from "../components/ui/button";
+import { InteractiveCard } from "../components/ui/InteractiveCard";
 import { Link } from "react-router-dom";
+import axios from "axios";  // ✅ Added for API calls
 import {
   ArrowRight,
   Clock,
@@ -13,7 +15,21 @@ import {
   Search,
   Filter,
 } from "lucide-react";
-import { courses, Course } from "../data/Courses";
+
+// Define Course interface (based on your data structure)
+interface Course {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  pricing: string;
+  level: string;
+  duration: string;
+  students: string;
+  rating: string;
+  color: string;
+  image: string;
+}
 
 // ================= ANIMATION =================
 const containerVariants = {
@@ -31,8 +47,26 @@ const itemVariants = {
 
 // ================= COMPONENT =================
 const Courses = () => {
+  const [courses, setCourses] = useState<Course[]>([]);  // ✅ Fetched from backend
+  const [loading, setLoading] = useState(true);  // ✅ Loading state
+  const [error, setError] = useState("");  // ✅ Error state
   const [searchInput, setSearchInput] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
+
+  // ✅ Fetch courses from backend on mount
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/courses");
+        setCourses(res.data);  // ✅ Set fetched data
+      } catch (err: any) {
+        setError("Failed to load courses. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCourses();
+  }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -52,6 +86,22 @@ const Courses = () => {
       course.pricing.toLowerCase().includes(term)
     );
   });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p>Loading courses...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -73,7 +123,7 @@ const Courses = () => {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <input
                   placeholder="Search courses (free, paid, python...)"
-                  className="w-full h-12 pl-12 pr-4 rounded-xl glass-panel text-black"
+                  className="w-full h-12 pl-12 pr-4 rounded-xl glass-panel text-foreground placeholder:text-muted-foreground"
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   onKeyDown={handleKeyDown}
@@ -96,9 +146,8 @@ const Courses = () => {
               className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
             >
               {filteredCourses.map((course: Course) => (
-                <motion.div
+                <InteractiveCard
                   key={course.id}
-                  variants={itemVariants}
                   className="glass-panel-strong p-6 flex flex-col"
                 >
                   {/* Free / Paid Badge */}
@@ -163,7 +212,7 @@ const Courses = () => {
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </Link>
-                </motion.div>
+                </InteractiveCard>
               ))}
             </motion.div>
           </div>

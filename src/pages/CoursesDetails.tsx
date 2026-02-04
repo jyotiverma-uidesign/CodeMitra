@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { Navbar } from "../components/layout/Navbar";
 import { Footer } from "../components/layout/Footer";
@@ -36,16 +37,29 @@ const TXN_REGEX = /^[A-Za-z0-9]{10,25}$/;
 const CourseDetail = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const course: Course | null = location.state?.course || null;
+  const { id } = useParams<{ id: string }>();
+  const [course, setCourse] = useState<Course | null>(location.state?.course || null);
 
   const [showDemo, setShowDemo] = useState(false);
   const [showUPI, setShowUPI] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [txnId, setTxnId] = useState("");
   const [confirmed, setConfirmed] = useState(false);
   const [error, setError] = useState("");
 
   const amount = course?.price ?? 499;
+
+  // Fetch course data if not available in state
+  useEffect(() => {
+    if (!course && id) {
+      setLoading(true);
+      axios.get(`http://localhost:5000/api/courses/${id}`)
+        .then(res => setCourse(res.data))
+        .catch(err => console.error('Failed to fetch course:', err))
+        .finally(() => setLoading(false));
+    }
+  }, [course, id]);
 
   if (!course) {
     return (

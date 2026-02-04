@@ -4,7 +4,7 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "jsx": "react-jsx",          // <-- only once!
-    "types": ["node"],           
+    "types": ["node","vite/client", "@react-three/fiber", "three"],
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,

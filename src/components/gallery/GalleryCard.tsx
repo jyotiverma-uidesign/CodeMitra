@@ -8,6 +8,7 @@ interface GalleryCardProps {
   category: string;
   isFeatured: boolean;
   onClick: () => void;
+  index?: number; // For staggered animations
 }
 
 const GalleryCard = ({
@@ -17,49 +18,98 @@ const GalleryCard = ({
   category,
   isFeatured,
   onClick,
+  index = 0,
 }: GalleryCardProps) => {
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      transition={{ duration: 0.3 }}
-      className={`group relative cursor-pointer overflow-hidden rounded-xl bg-card border border-border ${
+      initial={{ opacity: 0, scale: 0.8, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.8, y: 20 }}
+      transition={{
+        duration: 0.5,
+        delay: index * 0.1, // Staggered animation
+        ease: "easeOut"
+      }}
+      whileHover={{
+        scale: 1.05,
+        transition: { duration: 0.2 }
+      }}
+      className={`group relative cursor-pointer overflow-hidden rounded-xl bg-card border border-border shadow-sm hover:shadow-lg transition-all duration-300 ${
         isFeatured ? "md:col-span-2 md:row-span-2" : ""
       }`}
       onClick={onClick}
     >
       <div className="aspect-square overflow-hidden">
-        <img
+        <motion.img
           src={imageUrl}
           alt={title}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+          whileHover={{ scale: 1.1 }}
+          transition={{ duration: 0.3 }}
         />
       </div>
 
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      {/* Glassmorphism overlay */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        initial={{ opacity: 0 }}
+        whileHover={{ opacity: 1 }}
+      />
 
       {/* Content */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-        <span className="inline-block px-2 py-1 text-xs font-medium rounded-full bg-primary/20 text-primary mb-2 capitalize">
+      <motion.div
+        className="absolute bottom-0 left-0 right-0 p-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300"
+        initial={{ y: 20, opacity: 0 }}
+        whileHover={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      >
+        <motion.span
+          className="inline-block px-3 py-1 text-xs font-medium rounded-full bg-white/20 backdrop-blur-sm text-white mb-2 capitalize border border-white/20"
+          initial={{ scale: 0.8 }}
+          whileHover={{ scale: 1 }}
+          transition={{ duration: 0.2 }}
+        >
           {category}
-        </span>
-        <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+        </motion.span>
+        <motion.h3
+          className="text-lg font-semibold text-white mb-1"
+          initial={{ x: -10, opacity: 0 }}
+          whileHover={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+        >
+          {title}
+        </motion.h3>
         {description && (
-          <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+          <motion.p
+            className="text-sm text-white/90 line-clamp-2"
+            initial={{ x: -10, opacity: 0 }}
+            whileHover={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0.3 }}
+          >
             {description}
-          </p>
+          </motion.p>
         )}
-      </div>
+      </motion.div>
 
       {/* Featured badge */}
       {isFeatured && (
-        <div className="absolute top-3 right-3 px-2 py-1 text-xs font-medium rounded-full bg-primary text-primary-foreground">
+        <motion.div
+          className="absolute top-3 right-3 px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r from-primary to-secondary text-white shadow-lg"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+        >
           Featured
-        </div>
+        </motion.div>
       )}
+
+      {/* Hover glow effect */}
+      <motion.div
+        className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/20 to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+        initial={{ opacity: 0 }}
+        whileHover={{ opacity: 1 }}
+      />
     </motion.div>
   );
 };

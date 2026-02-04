@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const ForgotPassword = () => {
+const VerifyOTP = () => {
   const navigate = useNavigate();
+  const [otp, setOtp] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -14,14 +15,15 @@ const ForgotPassword = () => {
     setMessage("");
 
     try {
-      const res = await axios.post("http://localhost:5000/api/users/forgot-password", {
+      const res = await axios.post("http://localhost:5000/api/users/verify-otp", {
         email,
+        otp,
       });
 
-      setMessage(res.data.message);
-      setTimeout(() => navigate("/verify-otp"), 2000);
+      setMessage("OTP verified successfully! Redirecting to reset password...");
+      setTimeout(() => navigate(`/reset-password/${res.data.resetToken}`), 2000);
     } catch (err: any) {
-      setMessage(err.response?.data?.message || "Something went wrong. Check your email or try again.");
+      setMessage(err.response?.data?.message || "Invalid OTP. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -34,7 +36,7 @@ const ForgotPassword = () => {
         className="bg-white p-6 rounded shadow w-[350px]"
       >
         <h2 className="text-xl font-semibold mb-4 text-center">
-          Forgot Password
+          Verify OTP
         </h2>
 
         <input
@@ -46,11 +48,21 @@ const ForgotPassword = () => {
           required
         />
 
+        <input
+          type="text"
+          placeholder="Enter 6-digit OTP"
+          className="w-full border p-2 rounded mb-3"
+          value={otp}
+          onChange={(e) => setOtp(e.target.value)}
+          maxLength={6}
+          required
+        />
+
         <button
           disabled={loading}
           className="w-full bg-blue-600 text-white py-2 rounded"
         >
-          {loading ? "Sending..." : "Send Reset Link"}
+          {loading ? "Verifying..." : "Verify OTP"}
         </button>
 
         {message && (
@@ -63,4 +75,4 @@ const ForgotPassword = () => {
   );
 };
 
-export default ForgotPassword;
+export default VerifyOTP;

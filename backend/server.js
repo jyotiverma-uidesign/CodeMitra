@@ -1,284 +1,272 @@
-import express from 'express';
-import cors from 'cors';
-import path from 'path';
-import dotenv from 'dotenv';
-import * as bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
-import nodemailer from 'nodemailer';
-import multer from 'multer';
-import { body, validationResult } from 'express-validator';
-import { createClient } from '@supabase/supabase-js';
+import express from "express";
+import cors from "cors";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+import { supabase } from "./config/supabase.js";
 
 dotenv.config();
 
 const app = express();
+
+/* ================= CONFIG ================= */
 const PORT = process.env.PORT || 5000;
+const JWT_SECRET = process.env.JWT_SECRET;
 
-// Supabase client
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+if (!JWT_SECRET) {
+  console.error('JWT_SECRET is not set in .env');
+  process.exit(1);  // Exit if missing
+}
 
-// Middleware
-app.use(cors({ origin: 'http://localhost:3000' }));  // Allow frontend
-app.use(express.json());  // Parse JSON
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));  // Serve files
+/* ================= MIDDLEWARE ================= */
+app.use(cors());
+app.use(express.json());
 
-// Multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
-const upload = multer({ storage });
+/* ================= AUTH MIDDLEWARE ================= */
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token) {
+    console.warn('Auth middleware: No token provided');
+    return res.status(401).json({ message: "Token required" });
+  }
 
-// Email transporter
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS,
-  },
-});
-
-// Password validation
-const isStrongPassword = (password) =>
-  /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(password);
-
-// Auth middleware
-const auth = async (req, res, next) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
-  if (!token) return res.status(401).json({ message: 'No token provided' });
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const { data: user, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', decoded.id)
-      .single();
-    if (error || !user) return res.status(401).json({ message: 'User not found' });
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      console.warn('Auth middleware: Invalid token');
+      return res.status(403).json({ message: "Invalid token" });
+    }
+    // Log only decoded payload (no raw token)
+    console.log('Auth middleware: token decoded', { id: user.id, email: user.email });
     req.user = user;
     next();
-  } catch (err) {
-    res.status(401).json({ message: 'Invalid token' });
-  }
+  });
 };
 
-const adminOnly = (req, res, next) => {
-  if (req.user.role !== 'admin') return res.status(403).json({ message: 'Admin access required' });
-  next();
-};
-
-// ================= USERS ROUTES =================
-
-// Signup
-app.post('/api/users/signup', upload.single('profileImage'), [
-  body('name').notEmpty(),
-  body('email').isEmail(),
-  body('password').isLength({ min: 8 }).custom(isStrongPassword),
-], async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-
-  const { name, email, password } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  const { data, error } = await supabase
-    .from('users')
-    .insert([{ name, email, password: hashedPassword, profileImage: req.file?.path, role: 'user' }]);
-
-  if (error) return res.status(400).json({ message: 'Account already exists' });
-  res.status(201).json({ message: 'User created' });
-});
-
-// Login
-app.post('/api/users/login', async (req, res) => {
-  const { email, password } = req.body;
-  const { data: user, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('email', email)
-    .single();
-
-  if (error || !user || !(await bcrypt.compare(password, user.password))) {
-    return res.status(401).json({ message: 'Invalid credentials' });
+/* ================= COURSES DATA ================= */
+const courses = [
+  // ================= FREE COURSES ===============
+  {
+    id: "intro-generative-ai",
+    title: "Introduction to Generative AI",
+    description: "Learn the fundamentals of Generative AI, ChatGPT, and modern AI tools with real-world examples.",
+    category: "Programming",
+    pricing: "Free",
+    level: "Beginner",
+    duration: "2 weeks",
+    students: "18K",
+    rating: "4.7",
+    color: "from-sky-500 to-indigo-600",
+    image: "🤖"
+  },
+  {
+    id: "intro-mern-stack",
+    title: "Introduction to MERN Stack",
+    description: "Understand the basics of MongoDB, Express, React, and Node before starting full-stack development.",
+    category: "Programming",
+    pricing: "Free",
+    level: "Beginner",
+    duration: "3 weeks",
+    students: "15.2K",
+    rating: "4.6",
+    color: "from-green-500 to-emerald-600",
+    image: "🌐"
+  },
+  // ================= PAID COURSES =================
+  {
+    id: "python-fundamentals",
+    title: "Python Fundamentals",
+    description: "Master Python from basics to advanced concepts with hands-on projects and practical examples.",
+    category: "Programming",
+    pricing: "Paid",
+    level: "Beginner",
+    duration: "8 weeks",
+    students: "12.5K",
+    rating: "4.9",
+    color: "from-emerald-500 to-teal-600",
+    image: "🐍"
+  },
+  {
+    id: "javascript-developer",
+    title: "JavaScript Developer",
+    description: "Become a modern JavaScript developer with ES6+, DOM, async programming, and real projects.",
+    category: "Programming",
+    pricing: "Paid",
+    level: "Intermediate",
+    duration: "10 weeks",
+    students: "9.8K",
+    rating: "4.8",
+    color: "from-yellow-500 to-orange-600",
+    image: "⚡"
+  },
+  {
+    id: "fullstack-web-dev",
+    title: "Full-Stack Web Development (MERN)",
+    description: "Build complete full-stack applications using React, Node.js, MongoDB, and deploy them professionally.",
+    category: "Programming",
+    pricing: "Paid",
+    level: "Advanced",
+    duration: "16 weeks",
+    students: "7.2K",
+    rating: "4.9",
+    color: "from-primary to-neon-cyan",
+    image: "🚀"
   }
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-  res.json({ token, user });
+];
+
+/* ================= ROUTES ================= */
+
+// TEST
+app.get("/", (req, res) => {
+  res.send("🚀 PostgreSQL Server Running");
 });
 
-// Forgot Password
-app.post('/api/users/forgot-password', async (req, res) => {
-  const { email } = req.body;
+/* ========== COURSES ========== */
+app.get("/api/courses", (req, res) => {
   try {
+    res.json(courses);
+  } catch (err) {
+    console.error("Courses Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.get("/api/courses/:id", (req, res) => {
+  try {
+    const course = courses.find(c => c.id === req.params.id);
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+    res.json(course);
+  } catch (err) {
+    console.error("Course Detail Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ========== SIGNUP ========== */
+app.post("/api/users/signup", async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    if (!name || !email || !password)
+      return res.status(400).json({ message: "All fields required" });
+
+    // Check user exists - using Supabase query
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', email)
+      .single();
+
+    if (existingUser) return res.status(400).json({ message: "User already exists" });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Insert user - persist hashed password to `password` column
+    const { error } = await supabase
+      .from('users')
+      .insert([{ name, email, password: hashedPassword }]);
+
+    if (error) throw error;
+
+    res.status(201).json({ message: "User registered successfully" });
+  } catch (err) {
+    console.error("Signup Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ========== LOGIN ========== */
+app.post("/api/users/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password)
+      return res.status(400).json({ message: "Email & password required" });
+
+    // Fetch user - using Supabase query
     const { data: user, error } = await supabase
       .from('users')
       .select('*')
       .eq('email', email)
       .single();
 
-    if (error || !user) return res.json({ message: 'If email exists, reset link sent' });
+    if (error || !user) return res.status(400).json({ message: "Invalid credentials" });
 
-    const token = crypto.randomBytes(32).toString('hex');
-    const expiry = Date.now() + 15 * 60 * 1000;
+    // Ensure user has a stored password
+    if (!user.password) return res.status(400).json({ message: "Invalid credentials" });
 
-    const { error: updateError } = await supabase
-      .from('users')
-      .update({ resetToken: token, resetTokenExpiry: expiry })
-      .eq('id', user.id);
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) return res.status(400).json({ message: "Invalid credentials" });
 
-    if (updateError) {
-      console.log('Update failed:', updateError);
-      return res.status(500).json({ message: 'Something went wrong. Please try again.' });
-    }
+    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: "7d" });
 
-    const resetLink = `http://localhost:5173/reset-password/${token}`;
-
-    try {
-      await transporter.sendMail({
-        from: `"Code Mitra" <${process.env.GMAIL_USER}>`,
-        to: email,
-        subject: 'Reset your password',
-        html: `<h3>Password Reset</h3><p>Click <a href="${resetLink}">${resetLink}</a></p><p>Valid for 15 minutes</p>`,
-      });
-    } catch (emailErr) {
-      console.log('Email failed:', emailErr);
-      return res.status(500).json({ message: 'Failed to send email. Please try again.' });
-    }
-
-    res.json({ message: 'Reset link sent to your email' });
+    // Return token and basic user info (including role so client can avoid an extra profile fetch if desired)
+    res.json({
+      message: "Login successful",
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role || 'user'
+      },
+    });
   } catch (err) {
-    console.log('Unexpected error:', err);
-    res.status(500).json({ message: 'Something went wrong. Please try again.' });
+    console.error("Login Error:", err);  // Check this log for details
+    res.status(500).json({ message: "Server error. Please try again later." });
   }
 });
 
-// Reset Password
-app.post('/api/users/reset-password/:token', async (req, res) => {
-  const { token } = req.params;
-  const { newPassword } = req.body;
+/* ========== PROFILE (PROTECTED) ========== */
+app.get("/api/users/profile", authenticateToken, async (req, res) => {
+  try {
+    console.log('Profile request, token payload:', req.user);
 
-  if (!isStrongPassword(newPassword)) {
-    return res.status(400).json({ message: 'Password must be 8+ chars, include uppercase, number & symbol' });
+    if (!req.user) {
+      return res.status(401).json({ message: 'Invalid token payload' });
+    }
+
+    // Try lookup by id first
+    let user = null;
+    let error = null;
+
+    if (req.user.id) {
+      const result = await supabase
+        .from('users')
+        .select('id, name, email, role, "profileImage"')
+        .eq('id', req.user.id)
+        .single();
+      user = result.data;
+      if (user) user.avatar = user.profileImage; // Map profileImage to avatar for frontend
+      error = result.error;
+      console.log('Supabase profile by id:', { error: error || null, user: user ? { id: user.id, email: user.email } : null });
+    }
+
+    // If not found and we have an email in token, try lookup by email
+    if ((!user || !user.id) && req.user.email) {
+      const result = await supabase
+        .from('users')
+        .select('id, name, email, role, "profileImage"')
+        .eq('email', req.user.email)
+        .single();
+      user = result.data;
+      if (user) user.avatar = user.profileImage; // Map profileImage to avatar for frontend
+      error = result.error;
+      console.log('Supabase profile by email:', { error: error || null, user: user ? { id: user.id, email: user.email } : null });
+    }
+
+    if (error || !user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user);
+  } catch (err) {
+    console.error("Profile Error:", err);
+    res.status(500).json({ message: "Server error" });
   }
-
-  const { data: user, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('resetToken', token)
-    .gt('resetTokenExpiry', Date.now())
-    .single();
-
-  if (error || !user) return res.status(400).json({ message: 'Invalid or expired token' });
-
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
-  await supabase
-    .from('users')
-    .update({ password: hashedPassword, resetToken: null, resetTokenExpiry: null })
-    .eq('id', user.id);
-
-  res.json({ message: 'Password reset successful' });
 });
 
-// Profile
-app.get('/api/users/profile', auth, async (req, res) => res.json(req.user));
-app.put('/api/users/profile', auth, upload.single('profileImage'), async (req, res) => {
-  const updates = req.body;
-  if (req.file) updates.profileImage = req.file.path;
-  const { data, error } = await supabase
-    .from('users')
-    .update(updates)
-    .eq('id', req.user.id)
-    .select();
-  if (error) return res.status(500).json({ message: 'Update failed' });
-  res.json(data[0]);
-});
-
-// ================= COURSES ROUTES =================
-app.get('/api/courses', async (req, res) => {
-  const { data, error } = await supabase.from('courses').select('*');
-  if (error) return res.status(500).json({ message: error.message });
-  res.json(data);
-});
-
-app.post('/api/courses', auth, adminOnly, upload.single('image'), async (req, res) => {
-  const { title, description, price } = req.body;
-  const { data, error } = await supabase
-    .from('courses')
-    .insert([{ title, description, price, image: req.file?.path, instructor: req.user.id }]);
-  if (error) return res.status(500).json({ message: 'Error creating course' });
-  res.status(201).json(data[0]);
-});
-
-app.put('/api/courses/:id', auth, adminOnly, upload.single('image'), async (req, res) => {
-  const updates = req.body;
-  if (req.file) updates.image = req.file.path;
-  const { data, error } = await supabase
-    .from('courses')
-    .update(updates)
-    .eq('id', req.params.id)
-    .select();
-  if (error) return res.status(500).json({ message: 'Update failed' });
-  res.json(data[0]);
-});
-
-app.delete('/api/courses/:id', auth, adminOnly, async (req, res) => {
-  const { error } = await supabase.from('courses').delete().eq('id', req.params.id);
-  if (error) return res.status(500).json({ message: 'Delete failed' });
-  res.json({ message: 'Course deleted' });
-});
-
-// ================= PAYMENTS ROUTES =================
-app.post('/api/payments', auth, async (req, res) => {
-  const { courseId } = req.body;
-  const { data: course, error: courseError } = await supabase
-    .from('courses')
-    .select('*')
-    .eq('id', courseId)
-    .single();
-  if (courseError) return res.status(404).json({ message: 'Course not found' });
-
-  const { data, error } = await supabase
-    .from('payments')
-    .insert([{ user: req.user.id, course: courseId, amount: course.price, status: 'completed' }]);
-  if (error) return res.status(500).json({ message: 'Payment failed' });
-
-  // Update enrolled users
-  await supabase
-    .from('users')
-    .update({ enrolledCourses: [...(req.user.enrolledCourses || []), courseId] })
-    .eq('id', req.user.id);
-  await supabase
-    .from('courses')
-    .update({ enrolledUsers: [...(course.enrolledUsers || []), req.user.id] })
-    .eq('id', courseId);
-
-  res.json(data[0]);
-});
-
-app.get('/api/payments', auth, async (req, res) => {
-  const { data, error } = await supabase
-    .from('payments')
-    .select('*, course(*)')
-    .eq('user', req.user.id);
-  if (error) return res.status(500).json({ message: 'Error fetching payments' });
-  res.json(data);
-});
-
-// ================= ANALYTICS ROUTES =================
-app.get('/api/analytics', auth, adminOnly, async (req, res) => {
-  const { count: totalUsers } = await supabase.from('users').select('*', { count: 'exact', head: true });
-  const { count: totalCourses } = await supabase.from('courses').select('*', { count: 'exact', head: true });
-  const { count: totalPayments } = await supabase.from('payments').select('*', { count: 'exact', head: true }).eq('status', 'completed');
-  res.json({ totalUsers, totalCourses, totalPayments });
-});
-
-// ================= SERVER =================
+/* ================= START SERVER ================= */
 app.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });

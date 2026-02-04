@@ -4,7 +4,7 @@ import { User, Mail, Phone, Camera, Trash2, Lock } from "lucide-react";
 import { Button } from "../components/ui/button";
 
 const Profile = () => {
-  const { user, login } = useAuth();
+  const { user, updateUser } = useAuth();
 
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [oldPassword, setOldPassword] = useState("");
@@ -36,7 +36,7 @@ const Profile = () => {
     const data = await res.json();
 
     if (res.ok) {
-      login({ ...user, avatar: data.avatar });
+      updateUser({ avatar: data.avatar });
       setMessage("Profile image updated successfully");
     }
   };
@@ -52,7 +52,7 @@ const Profile = () => {
     });
 
     if (res.ok) {
-      login({ ...user, avatar: "" });
+      updateUser({ avatar: "" });
       setMessage("Profile image removed");
     }
   };

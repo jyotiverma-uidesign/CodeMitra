@@ -11,16 +11,45 @@ export const content = [
 export const theme = {
   extend: {
     colors: {
-      background: "#1a1b1f",        // body background
-      foreground: "#f8f8f2",        // text color
-      border: "#2c2d31",            // borders
-      card: "#2a2b30",              // glass panels
-      primary: "#8b5cf6",           // gradient primary
-      muted: "#3a3b42",             // muted backgrounds
-      "muted-foreground": "#9ca3af",
-      accent: "#facc15",            // optional accent
+      background: "hsl(var(--background))",
+      foreground: "hsl(var(--foreground))",
+      border: "hsl(var(--border))",
+      card: {
+        DEFAULT: "hsl(var(--card))",
+        foreground: "hsl(var(--card-foreground))",
+      },
+      primary: {
+        DEFAULT: "hsl(var(--primary))",
+        foreground: "hsl(var(--primary-foreground))",
+      },
+      secondary: {
+        DEFAULT: "hsl(var(--secondary))",
+        foreground: "hsl(var(--secondary-foreground))",
+      },
+      muted: {
+        DEFAULT: "hsl(var(--muted))",
+        foreground: "hsl(var(--muted-foreground))",
+      },
+      accent: {
+        DEFAULT: "hsl(var(--accent))",
+        foreground: "hsl(var(--accent-foreground))",
+      },
+      destructive: {
+        DEFAULT: "hsl(var(--destructive))",
+        foreground: "hsl(var(--destructive-foreground))",
+      },
+      input: "hsl(var(--input))",
+      ring: "hsl(var(--ring))",
     },
   },
 };
 
-export const plugins = [];
+export const plugins = [
+  function({ addUtilities }) {
+    addUtilities({
+      '.bg-gradient-radial': {
+        'background-image': 'radial-gradient(circle, var(--tw-gradient-stops))',
+      },
+    });
+  },
+];

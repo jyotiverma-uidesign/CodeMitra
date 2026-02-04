@@ -93,15 +93,80 @@ const Contact = () => {
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="glass-panel-strong p-6 text-center card-hover"
+                  transition={{ delay: index * 0.1, type: "spring", stiffness: 100 }}
+                  whileHover={{
+                    scale: 1.05,
+                    y: -5,
+                    transition: { type: "spring", stiffness: 300, damping: 20 }
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                  className="relative glass-panel-strong p-6 text-center cursor-pointer group overflow-hidden"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                  }}
                 >
-                  <div className={`w-14 h-14 rounded-xl ${info.bg} flex items-center justify-center mx-auto mb-4`}>
-                    <info.icon className={`w-6 h-6 ${info.color}`} />
+                  {/* Animated Border */}
+                  <div className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_200%] animate-gradient-x"></div>
+                    <div className="absolute inset-[1px] rounded-lg bg-background"></div>
                   </div>
-                  <h3 className="font-semibold mb-1">{info.title}</h3>
-                  <p className="text-foreground font-medium mb-1">{info.value}</p>
-                  <p className="text-sm text-muted-foreground">{info.description}</p>
+
+                  {/* Glow Effect */}
+                  <div className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-20 transition-opacity duration-500 bg-gradient-to-r from-primary/20 via-secondary/20 to-primary/20 blur-xl"></div>
+
+                  <div className="relative z-10">
+                    <motion.div
+                      className={`w-14 h-14 rounded-xl ${info.bg} flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}
+                      whileHover={{ rotate: 360 }}
+                      transition={{ duration: 0.6 }}
+                    >
+                      <info.icon className={`w-6 h-6 ${info.color} group-hover:scale-110 transition-transform duration-300`} />
+                    </motion.div>
+                    <motion.h3
+                      className="font-semibold mb-1 group-hover:text-primary transition-colors duration-300"
+                      initial={{ scale: 1 }}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      {info.title}
+                    </motion.h3>
+                    <motion.p
+                      className="text-foreground font-medium mb-1 group-hover:text-foreground transition-colors duration-300"
+                      initial={{ scale: 1 }}
+                      whileHover={{ scale: 1.02 }}
+                    >
+                      {info.value}
+                    </motion.p>
+                    <motion.p
+                      className="text-sm text-muted-foreground group-hover:text-muted-foreground/80 transition-colors duration-300"
+                      initial={{ scale: 1 }}
+                      whileHover={{ scale: 1.01 }}
+                    >
+                      {info.description}
+                    </motion.p>
+                  </div>
+
+                  {/* Cursor Effect - Custom Cursor */}
+                  <div className="absolute inset-0 pointer-events-none">
+                    <motion.div
+                      className="absolute w-2 h-2 bg-primary rounded-full opacity-0 group-hover:opacity-100"
+                      style={{
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                      }}
+                      animate={{
+                        scale: [1, 1.5, 1],
+                        opacity: [0, 1, 0],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    />
+                  </div>
                 </motion.div>
               ))}
             </div>
