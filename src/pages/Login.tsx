@@ -5,48 +5,50 @@ import { Code2, Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
+
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false); // ✅ NEW
+  const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  const [error, setError] = useState("");
 
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
+    // Validate inputs
+    if (!formData.email || !formData.password) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    if (!formData.email.includes("@")) {
+      setError("Please enter a valid email");
+      return;
+    }
+
     try {
-      const res = await fetch("http://localhost:5000/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message || "Login failed");
-        return;
-      }
-
-      // ✅ AuthContext login
-      login(data.user); // rememberMe future ke liye
-
+      setLoading(true);
+      await login(formData.email.trim(), formData.password);
       navigate("/", { replace: true });
-    } catch (err) {
-      setError("Server error. Please try again later.");
+    } catch (err: any) {
+      console.error("Login Error Details:", err);
+      setError(err.message || "Login failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Left Side - Form */}
       <div className="flex-1 flex items-center justify-center p-8">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -59,7 +61,7 @@ const Login = () => {
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
               <Code2 className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold gradient-text">Code Mitra</span>
+            <span className="text-xl font-bold">Code Mitra</span>
           </Link>
 
           <h1 className="text-3xl font-bold mb-2">Welcome back</h1>
@@ -67,7 +69,7 @@ const Login = () => {
             Sign in to continue your learning journey
           </p>
 
-          {error && <p className="text-sm text-red-500 mb-3">{error}</p>}
+          {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}
@@ -82,7 +84,7 @@ const Login = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  className="w-full h-12 pl-12 pr-4 rounded-lg glass-panel border-border/50 bg-muted/30"
+                  className="w-full h-12 pl-12 pr-4 rounded-lg border"
                   placeholder="your@email.com"
                 />
               </div>
@@ -100,7 +102,7 @@ const Login = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
                   }
-                  className="w-full h-12 pl-12 pr-12 rounded-lg glass-panel border-border/50 bg-muted/30"
+                  className="w-full h-12 pl-12 pr-12 rounded-lg border"
                   placeholder="••••••••"
                 />
                 <button
@@ -117,9 +119,9 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Remember + Forgot */}
+            {/* Remember */}
             <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   checked={rememberMe}
@@ -128,23 +130,20 @@ const Login = () => {
                 Remember me
               </label>
 
-              <Link
-                to="/forgot-password"
-                className="text-primary font-medium hover:underline"
-              >
+              <Link to="/forgot-password" className="text-primary font-medium">
                 Forgot password?
               </Link>
             </div>
 
-            <Button type="submit" variant="premium" size="lg" className="w-full">
-              Sign In
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Signing in..." : "Sign In"}
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </form>
 
           <div className="mt-8 text-center">
             <p className="text-muted-foreground">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link to="/register" className="text-primary font-medium">
                 Sign up
               </Link>

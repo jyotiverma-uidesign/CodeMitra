@@ -12,7 +12,16 @@
     "email": "jyotiverma85190@gmail.com",
     "password": "$2b$10$pcRVDGa903PC44GraWF6WuDwtVFrPstSxGKL2tJaZ4BfEKfHZJlsa",
     "avatar": "",
-    "resetToken": "a132023f78be12896fa486d19818ab190378b760f420ea4909c758cfd7aaeac3",
-    "resetTokenExpiry": 1768151469153
+    "resetToken": "8afa27d194b1f891f33084c80dbfae6b3c2f0708f53882f0432ddaccc419c331",
+    "resetTokenExpiry": 1769234772611
+  },
+  {
+    "name": "divansh",
+    "email": "divyansh@gmail.com",
+    "password": "$2b$10$QdNAU6C8Ud27RtfZoT9Df.et.j7KdO4WfqhE9KCqm/JA8GPNZxbiO",
+    "passwordHistory": [],
+    "avatar": "",
+    "resetToken": "79484a0bcbd358f05d8bcc574f28ab4621c668be6af699b3e606ed9a54285321",
+    "resetTokenExpiry": 1769226807216
   }
 ]

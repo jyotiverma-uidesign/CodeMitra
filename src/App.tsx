@@ -1,3 +1,5 @@
+// ✅ Works - React finds Login.tsx automatically
+import Component from './pages/Login';
 import { Toaster } from "./components/ui/toaster";
 import { Toaster as Sonner } from "./components/ui/sonner";
 import { TooltipProvider } from "./components/ui/tooltip";
@@ -17,6 +19,7 @@ import Profile from "./pages/Profile";
 import AdminPyment from "./pages/admin/AdminPyment";
 import Deshboard from "./pages/Deshboard";
 import ForgotPassword from "./pages/ForgotPassword";
+import VerifyOTP from "./pages/VerifyOTP";
 import ResetPassword from "./pages/ResetPassword";
 
 
@@ -24,6 +27,7 @@ import { AuthProvider } from "./context/AuthContext";
 import ThemeToggle from "./pages/ThemeToggle";
 import { useEffect } from "react";
 import ScrollToTop from "./components/ScrollTop";
+import Documentation from './pages/documentation';
 
 const queryClient = new QueryClient();
 
@@ -59,6 +63,7 @@ const App = () => {
             <Route path="/admin/pyment" element={<AdminPyment />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path='/docs' element={<Documentation />}/>
             <Route path="*" element={<NotFound />} />
           </Routes>
 

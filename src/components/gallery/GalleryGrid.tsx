@@ -47,9 +47,9 @@ const GalleryGrid = ({ items }: GalleryGridProps) => {
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <AnimatePresence>
-          {items.map((item) => (
+          {items.map((item, index) => (
             <GalleryCard
               key={item.id}
               id={item.id}
@@ -58,6 +58,7 @@ const GalleryGrid = ({ items }: GalleryGridProps) => {
               imageUrl={item.image_url}
               category={item.category}
               isFeatured={item.is_featured ?? false} // ✅ null-safe
+              index={index} // For staggered animations
               onClick={() => openLightbox(item)}
             />
           ))}
